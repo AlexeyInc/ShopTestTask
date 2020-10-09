@@ -42,7 +42,7 @@ namespace Shop.Infrastructure.Database.Services.Auth
 
             using (IDbConnection db = new SqlConnection(connectionString))
             {
-                var user = await db.QueryAsync<UserDbo>("SELECT * FROM [User] WHERE Username = @UserName AND [Password] = @Password", 
+                var user = await db.QueryAsync<UserDbo>("SELECT * FROM [User] WHERE Username = @UserName AND [Password] = @Password",
                                                         new { username, password }
                                                         );
                 currentUser = user.FirstOrDefault();
@@ -53,28 +53,48 @@ namespace Shop.Infrastructure.Database.Services.Auth
                 throw new UnauthorizedAccessException("Invalid password");
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.Key));
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Key));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Issuer = _tokenOptions.Issuer,
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, currentUser.Id.ToString()),
-                    new Claim(ClaimTypes.Name, currentUser.Username)
-                }),
-                Expires = DateTime.Now.Add(TimeSpan.FromMinutes(_tokenOptions.MinutesLifetime)),
-                SigningCredentials = creds
-            };
+            var now = DateTime.UtcNow;
 
-            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwt = new JwtSecurityToken(
+                    issuer: _tokenOptions.Issuer,
+                    audience: _tokenOptions.Audience,
+                    notBefore: now,
+                    claims: new ClaimsIdentity(new Claim[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, currentUser.Id.ToString()),
+                        new Claim(ClaimTypes.Name, currentUser.Username)
+                    }).Claims,
+                    expires: now.Add(TimeSpan.FromMinutes(_tokenOptions.MinutesLifetime)),
+                    signingCredentials: creds
+            );
 
-            SecurityToken userToken = tokenHandler.CreateToken(tokenDescriptor);
+            var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            return tokenHandler.WriteToken(userToken);
-        }
+            return encodedJwt;
+
+            //var tokenDescriptor = new SecurityTokenDescriptor
+            //{
+            //    Issuer = _tokenOptions.Issuer,
+            //    Audience = _tokenOptions.Audiense,
+            //    Subject = new ClaimsIdentity(new Claim[]
+            //    {
+            //        new Claim(ClaimTypes.NameIdentifier, currentUser.Id.ToString()),
+            //        new Claim(ClaimTypes.Name, currentUser.Username)
+            //    }),
+            //    Expires = DateTime.Now.Add(TimeSpan.FromMinutes(_tokenOptions.MinutesLifetime)),
+            //    SigningCredentials = creds
+            //};
+
+            //var tokenHandler = new JwtSecurityTokenHandler();
+
+            //SecurityToken userToken = tokenHandler.CreateToken(tokenDescriptor);
+
+            //return tokenHandler.WriteToken(userToken);
+        } 
 
         public async Task<bool> UserExists(string username)
         {

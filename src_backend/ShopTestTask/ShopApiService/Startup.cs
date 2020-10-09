@@ -34,15 +34,10 @@ namespace ShopApiService
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("DatabaseConnection");
              
-            services.AddAutoMapper(typeof(MappingProfile));
-
-            services.AddControllers();
-
             var tokenSettings = Configuration.GetSection(AuthOptions.TokenSettings).Get<AuthOptions>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -55,7 +50,11 @@ namespace ShopApiService
                             
                             ValidIssuer = tokenSettings.Issuer,
 
-                            ValidateLifetime = true,
+                             ValidateAudience = true,
+                             
+                             ValidAudience = tokenSettings.Audience,
+
+                             ValidateLifetime = true,
 
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSettings.Key)),
                             
@@ -69,12 +68,15 @@ namespace ShopApiService
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
-             
+
+            services.AddControllers();
+
+            services.AddAutoMapper(typeof(MappingProfile));
+
             services.AddScoped<IAuthDataService, AuthDataService>(provider => new AuthDataService(connectionString, tokenSettings));
             services.AddScoped<IRoleDataService, RoleDataService>(provider => new RoleDataService(connectionString));
             services.AddScoped<IProductDataService, ProductDataService>(provider => new ProductDataService(connectionString));
-
-
+             
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -97,7 +99,7 @@ namespace ShopApiService
 
             app.UseRouting();
 
-            app.UseMiddleware<JwtParserMiddleware>();
+            //app.UseMiddleware<JwtParserMiddleware>();
 
             app.UseAuthentication();
             app.UseAuthorization();

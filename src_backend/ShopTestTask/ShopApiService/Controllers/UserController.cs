@@ -53,9 +53,10 @@ namespace ShopApiService.Controllers
         }
 
         [HttpPost("AddRole/{roleId}")]
+        [Authorize]
         public async Task<IActionResult> AddRole(int roleId)
         {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             if (!await _roleDataService.AddRoleForUser(int.Parse(userId), roleId))
             {
@@ -69,7 +70,7 @@ namespace ShopApiService.Controllers
         [Authorize]
         public async Task<IActionResult> RemoveRole(int roleId)
         {
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 
             if (!await _roleDataService.RemoveRoleForUser(int.Parse(userId), roleId))
             {

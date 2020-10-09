@@ -50,12 +50,10 @@ let Home = ({ isLoggedIn, setIsLoggedIn }) => {
     if(removeRole === 1 || removeRole === 2 || removeRole === 3){
       let authTokenAuthForRemove = JSON.parse(localStorage.getItem("token"));
       let cleanupClone = false;
-
-      let data = removeRole;
-
+ 
       const remRole = () => {
         axios
-        .post(`https://localhost:44380/User/removeRole/${removeRole}`, data, {
+        .post(`https://localhost:44380/User/removeRole/${removeRole}`, removeRole, {
           headers: {
             "Authorization" : `Bearer ` + authTokenAuthForRemove
           }

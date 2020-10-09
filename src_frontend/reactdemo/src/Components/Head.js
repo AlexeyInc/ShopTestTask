@@ -11,10 +11,6 @@ let Head = () => {
 
   useEffect(() => {
     setLoading(true);
-    // const headers = {
-    //   "Content-Type": "application/json",
-    //   Authorization: authTokens
-    // };
 
     axios
       .get("https://localhost:44380/Product/Top")

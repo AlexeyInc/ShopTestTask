@@ -25,8 +25,6 @@ useEffect(()=> {
       if (result.status === 200) {
         setIsLoggedIn(true);
         localStorage.setItem("token", JSON.stringify(result.data.token));
-        // setToken(result.data);
-        // setAuthToken(result.data);
       } 
     })
     .catch((e) => {
