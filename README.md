@@ -1,0 +1,2 @@
+# ShopTestTask
+ .Net Core | ReactJS
