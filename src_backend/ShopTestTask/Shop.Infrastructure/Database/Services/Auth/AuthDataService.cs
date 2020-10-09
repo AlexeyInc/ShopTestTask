@@ -1,7 +1,9 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Shop.Infrastructure.Database.Configuration;
 using Shop.Infrastructure.Database.Models;
 using System;
 using System.Collections.Generic;
@@ -17,12 +19,12 @@ namespace Shop.Infrastructure.Database.Services.Auth
     public class AuthDataService : IAuthDataService
     {
         string connectionString = null;
-        private readonly IConfiguration _config;
+        private readonly AuthOptions _tokenOptions; 
 
-        public AuthDataService(string conn, IConfiguration configuration)
+        public AuthDataService(string conn, AuthOptions tokenOptions)
         {
-            connectionString = conn;
-            _config = configuration;
+            connectionString = conn; 
+            _tokenOptions = tokenOptions;
         } 
 
         public async Task<bool> Register(string username, string password)
@@ -51,20 +53,19 @@ namespace Shop.Infrastructure.Database.Services.Auth
                 throw new UnauthorizedAccessException("Invalid password");
             }
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8
-                                .GetBytes(_config.GetSection("AppSettings:Token").Value));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenOptions.Key));
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Issuer = "ShopApiService",
+                Issuer = _tokenOptions.Issuer,
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, currentUser.Id.ToString()),
                     new Claim(ClaimTypes.Name, currentUser.Username)
                 }),
-                Expires = DateTime.Now.AddDays(3),
+                Expires = DateTime.Now.Add(TimeSpan.FromMinutes(_tokenOptions.MinutesLifetime)),
                 SigningCredentials = creds
             };
 

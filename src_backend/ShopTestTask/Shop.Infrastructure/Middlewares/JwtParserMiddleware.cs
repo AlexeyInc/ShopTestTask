@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -20,13 +21,13 @@ namespace Shop.Infrastructure.Middlewares
 
         public async Task Invoke(HttpContext httpContext)
         {
-           string rawAccessToken = httpContext.Request.Headers["Authorization"];
+            string rawAccessToken = httpContext.Request.Headers["Authorization"];
 
             if (rawAccessToken != null)
             {
                 var handler = new JwtSecurityTokenHandler();
-                var accessToken = handler.ReadJwtToken(rawAccessToken.Replace("Bearer ", string.Empty));
 
+                var accessToken = handler.ReadJwtToken(rawAccessToken.Replace("Bearer ", string.Empty));
                 var userId = new Claim(ClaimTypes.NameIdentifier, accessToken.Claims.FirstOrDefault(x => x.Type == "nameid")?.Value);
                 var userName = new Claim(ClaimTypes.Name, accessToken.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value);
 

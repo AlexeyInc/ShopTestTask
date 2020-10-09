@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,11 +13,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Shop.Infrastructure.Database.Configuration;
 using Shop.Infrastructure.Database.Services.Auth;
 using Shop.Infrastructure.Database.Services.Product;
 using Shop.Infrastructure.Database.Services.Role;
 using Shop.Infrastructure.Middlewares;
+using ShopApiService.Configuration;
 using ShopApiService.Configuration.Mapping;
 
 namespace ShopApiService
@@ -33,14 +38,30 @@ namespace ShopApiService
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = Configuration.GetConnectionString("DatabaseConnection");
-
-            services.AddScoped<IAuthDataService, AuthDataService>(provider => new AuthDataService(connectionString, Configuration));
-            services.AddScoped<IRoleDataService, RoleDataService>(provider => new RoleDataService(connectionString));
-            services.AddScoped<IProductDataService, ProductDataService>(provider => new ProductDataService(connectionString));
-
+             
             services.AddAutoMapper(typeof(MappingProfile));
 
             services.AddControllers();
+
+            var tokenSettings = Configuration.GetSection(AuthOptions.TokenSettings).Get<AuthOptions>();
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                     .AddJwtBearer(options =>
+                     {
+                         options.RequireHttpsMetadata = false;
+                         options.TokenValidationParameters = new TokenValidationParameters
+                         {
+                            ValidateIssuer = true,
+                            
+                            ValidIssuer = tokenSettings.Issuer,
+
+                            ValidateLifetime = true,
+
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(tokenSettings.Key)),
+                            
+                            ValidateIssuerSigningKey = true
+                         };
+                     });
 
             services.AddCors(o => o.AddPolicy("DemocraticPolicy", builder =>
             {
@@ -48,6 +69,11 @@ namespace ShopApiService
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
+             
+            services.AddScoped<IAuthDataService, AuthDataService>(provider => new AuthDataService(connectionString, tokenSettings));
+            services.AddScoped<IRoleDataService, RoleDataService>(provider => new RoleDataService(connectionString));
+            services.AddScoped<IProductDataService, ProductDataService>(provider => new ProductDataService(connectionString));
+
 
             services.AddSwaggerGen(c =>
             {
@@ -73,6 +99,7 @@ namespace ShopApiService
 
             app.UseMiddleware<JwtParserMiddleware>();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseCors("DemocraticPolicy");

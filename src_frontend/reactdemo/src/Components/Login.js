@@ -14,16 +14,18 @@ function Login({ isLoggedIn, setIsLoggedIn }) {
 
 useEffect(()=> {
   let mounted = true;
+
   if(sendRequest){
     axios
-    .post("https://localhost:44380/User/Login", {
+    .post("https://localhost:44380/User/Authorize", {
       username: username,
       password: password
     })
     .then((result) => {
       if (result.status === 200) {
         setIsLoggedIn(true);
-        setToken(result.data);
+        localStorage.setItem("token", JSON.stringify(result.data.token));
+        // setToken(result.data);
         // setAuthToken(result.data);
       } 
     })
@@ -42,10 +44,6 @@ useEffect(()=> {
 
   return (
     <div className="login">
-      <div>
-        <h3>Email: test</h3>
-        <h3>Password: test</h3>
-      </div>
       <div className="login_content">
         <form>
           <label>Email</label>

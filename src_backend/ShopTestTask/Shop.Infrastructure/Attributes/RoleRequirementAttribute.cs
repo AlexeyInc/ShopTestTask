@@ -25,19 +25,22 @@ namespace Shop.Infrastructure.Attributes
             }
             public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
             {
-                var userId = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var userId = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                var roleDataService = context.HttpContext.RequestServices.GetService<IRoleDataService>();
-
-                var haveRolePermission = await roleDataService.CheckRoleForUser(_requiredRoleId, int.Parse(userId));
-
-                if (!haveRolePermission)
+                if (userId != null)
                 {
-                    context.Result = new ContentResult()
+                    var roleDataService = context.HttpContext.RequestServices.GetService<IRoleDataService>();
+
+                    var haveRolePermission = await roleDataService.CheckRoleForUser(_requiredRoleId, int.Parse(userId));
+
+                    if (!haveRolePermission)
                     {
-                        Content = "User doesn't have required role!",
-                        StatusCode = 403
-                    };
+                        context.Result = new ContentResult()
+                        {
+                            Content = "User doesn't have required role!",
+                            StatusCode = 403
+                        };
+                    }
                 }
             }
         }

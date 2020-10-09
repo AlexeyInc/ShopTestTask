@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -31,8 +32,8 @@ namespace ShopApiService.Controllers
             _roleDataService = roleDataService;
         }
 
-        [HttpPost("Login")]
-        public async Task<ActionResult<JwtViewModel>> Login(UserLoginViewModel userLogin)
+        [HttpPost("Authorize")]
+        public async Task<ActionResult<JwtViewModel>> AuthorizeUser(UserLoginViewModel userLogin)
         {
             userLogin.Username = userLogin.Username.ToLower();
 
@@ -65,6 +66,7 @@ namespace ShopApiService.Controllers
         }
 
         [HttpPost("RemoveRole/{roleId}")]
+        [Authorize]
         public async Task<IActionResult> RemoveRole(int roleId)
         {
             var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;

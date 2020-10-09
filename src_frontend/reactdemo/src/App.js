@@ -21,6 +21,7 @@ function App() {
   const [authToken, setAuthToken] = useState(existingTokens);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const setToken = (data) => {
+    console.log(data + " <____--here");
     localStorage.setItem("token", JSON.stringify(data));
     setAuthToken(data);
   };
