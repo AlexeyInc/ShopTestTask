@@ -112,17 +112,11 @@ INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (43, 
 INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (44, 28, 10, CAST(N'2017-08-15T04:39:34.000' AS DateTime), 200)
 INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (45, 38, 9, CAST(N'2010-09-14T08:05:21.000' AS DateTime), 5)
 INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (46, 33, 4, CAST(N'2017-04-28T04:17:54.000' AS DateTime), 122)
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (47, 9, 5, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 420) --  ME!
 
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (48, 39, 5, CAST(N'2012-08-03T01:19:51.000' AS DateTime), 4) --  ME!
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (49, 39, 5, CAST(N'2015-01-03T01:19:51.000' AS DateTime), 20) --  ME!
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (50, 39, 5, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 42) --  ME!
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (51, 39, 5, CAST(N'2016-08-03T01:19:51.000' AS DateTime), 40) --  ME!
-
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (52, 40, 13, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 420) --  ME!
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (53, 40, 13, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 420) --  ME!
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (54, 40, 13, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 420) --  ME!
-INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (55, 40, 13, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 420) --  ME!
+INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (48, 39, 12, CAST(N'2012-08-03T01:19:51.000' AS DateTime), 4) --  ME!
+INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (49, 39, 12, CAST(N'2015-01-03T01:19:51.000' AS DateTime), 20) --  ME!
+INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (50, 39, 12, CAST(N'2015-08-03T01:19:51.000' AS DateTime), 42) --  ME!
+INSERT [dbo].[Buy] ([Id], [ClientId], [ProductId], [Date], [Count]) VALUES (51, 39, 12, CAST(N'2016-08-03T01:19:51.000' AS DateTime), 40) --  ME!
 SET IDENTITY_INSERT [dbo].[Buy] OFF
 SET IDENTITY_INSERT [dbo].[Client] ON 
 
@@ -163,8 +157,7 @@ INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (35, N'Халипов Никанор Никифо
 INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (36, N'Горемыкина Ангелина Александровна', 4)
 INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (37, N'Буланов Юрий Миронович', 6)
 INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (38, N'Бабышев Вадим Игоревич', 12)
-INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (39, N'Лол Лол Лоллович', 7) -- ME!
-INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (40, N'Овсянников Алексей Сергеевич', 7) -- ME!
+INSERT [dbo].[Client] ([Id], [Fio], [Rank]) VALUES (39, N'Овсянников Алексей Сергеевич', 7) -- ME!
 SET IDENTITY_INSERT [dbo].[Client] OFF
 SET IDENTITY_INSERT [dbo].[Product] ON 
 
@@ -178,8 +171,7 @@ INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (8, N'Товар 7', 33.0000)
 INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (9, N'Товар 8', 1.0000)
 INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (10, N'Товар 9', 5000.0000)
 INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (11, N'Товар 10', 1200.0000)
-INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (12, N'Мой Товар 1', 1200.0000)-- ME!
-INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (13, N'Твой Товар 2', 1200.0000)-- ME!
+INSERT [dbo].[Product] ([Id], [Name], [Cost]) VALUES (12, N'Популярный Товар', 1200.0000)-- ME! 
 SET IDENTITY_INSERT [dbo].[Product] OFF
 ALTER TABLE [dbo].[Buy] ADD  DEFAULT (getdate()) FOR [Date]
 GO
@@ -298,15 +290,3 @@ AS
 	END
 RETURN 
 GO
-
-EXEC GetProducts @TypeSubquery = 1
-GO
-
-USE [master]
-GO
-ALTER DATABASE [TestData] SET  READ_WRITE 
-GO
-
-exec dbo.ChangeRoleForUser 
-@StatementType = 'add', @UserId = 2, @RoleId = 1
-GO 

@@ -20,19 +20,19 @@ let Home = ({ isLoggedIn, setIsLoggedIn }) => {
   const [analytic, setAnalytic] = useState("off");
   const [manager, setManager] = useState("off");
   const [head, setHead] = useState("off");
-  const [roleId, setRoleId] = useState(null);
-  const [removeRole, setRemoveRole] = useState(null)
+  const [addRoleId, setAddRoleId] = useState(null);
+  const [removeRoleId, setRemoveRoleId] = useState(null)
   const { authToken } = useAuth();
 
   useEffect(() => {
- if(roleId === 1 || roleId === 2 || roleId === 3){
+
+ if(addRoleId === 1 || addRoleId === 2 || addRoleId === 3){
    let authTokenAuth = JSON.parse(localStorage.getItem("token"));
   let cleanup = false;
 
-  let data = roleId;
   const req = () => {
     axios
-    .post(`https://localhost:44380/User/addRole/${roleId}`, data, {
+    .post(`https://localhost:44380/Role/Add/${addRoleId}`, addRoleId, {
       headers: {
         "Authorization" : `Bearer ` + authTokenAuth
       }
@@ -43,17 +43,17 @@ let Home = ({ isLoggedIn, setIsLoggedIn }) => {
 
   return ()=> cleanup = true;
  }
-  },[roleId]);
+  },[addRoleId]);
 
 
   useEffect(()=> {
-    if(removeRole === 1 || removeRole === 2 || removeRole === 3){
+    if(removeRoleId === 1 || removeRoleId === 2 || removeRoleId === 3){
       let authTokenAuthForRemove = JSON.parse(localStorage.getItem("token"));
       let cleanupClone = false;
  
       const remRole = () => {
         axios
-        .post(`https://localhost:44380/User/removeRole/${removeRole}`, removeRole, {
+        .post(`https://localhost:44380/Role/Remove/${removeRoleId}`, removeRoleId, {
           headers: {
             "Authorization" : `Bearer ` + authTokenAuthForRemove
           }
@@ -64,14 +64,15 @@ let Home = ({ isLoggedIn, setIsLoggedIn }) => {
     
       return ()=> cleanupClone = true;
     }
-  }, [removeRole])
+  }, [removeRoleId])
 
   let toggle = (setter, getter, id) => {
     setter(getter === "off" ? "on" : "off");
-    setRoleId(id);
-
-    if(getter === "on"){
-      setRemoveRole(id);
+     
+    if(getter === "off"){
+      setAddRoleId(id);
+    } else {
+      setRemoveRoleId(id);
     }
   };
 

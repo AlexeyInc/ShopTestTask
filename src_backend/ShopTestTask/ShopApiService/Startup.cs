@@ -62,7 +62,7 @@ namespace ShopApiService
                          };
                      });
 
-            services.AddCors(o => o.AddPolicy("DemocraticPolicy", builder =>
+            services.AddCors(o => o.AddPolicy("CustomPolicy", builder =>
             {
                 builder.AllowAnyOrigin()
                        .AllowAnyMethod()
@@ -99,12 +99,10 @@ namespace ShopApiService
 
             app.UseRouting();
 
-            //app.UseMiddleware<JwtParserMiddleware>();
-
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors("DemocraticPolicy");
+            app.UseCors("CustomPolicy");
 
             app.UseEndpoints(endpoints =>
             {

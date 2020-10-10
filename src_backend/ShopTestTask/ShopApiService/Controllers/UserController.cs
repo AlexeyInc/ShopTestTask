@@ -23,13 +23,10 @@ namespace ShopApiService.Controllers
     public class UserController : ControllerBase
     {
         private readonly IAuthDataService _authDataService;
-        private readonly IRoleDataService _roleDataService;
 
-        public UserController(IAuthDataService authDataService,
-            IRoleDataService roleDataService)
+        public UserController(IAuthDataService authDataService)
         {
             _authDataService = authDataService;
-            _roleDataService = roleDataService;
         }
 
         [HttpPost("Authorize")]
@@ -50,34 +47,6 @@ namespace ShopApiService.Controllers
             {
                 Token = jwtToken
             });
-        }
-
-        [HttpPost("AddRole/{roleId}")]
-        [Authorize]
-        public async Task<IActionResult> AddRole(int roleId)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            if (!await _roleDataService.AddRoleForUser(int.Parse(userId), roleId))
-            {
-                return BadRequest("Role adding error");
-            }
-
-            return Ok("Role added!");
-        }
-
-        [HttpPost("RemoveRole/{roleId}")]
-        [Authorize]
-        public async Task<IActionResult> RemoveRole(int roleId)
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
-            if (!await _roleDataService.RemoveRoleForUser(int.Parse(userId), roleId))
-            {
-                return BadRequest("Role removing error");
-            }
-
-            return Ok("Role removed!");
         }
     }
 }
