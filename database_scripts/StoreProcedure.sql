@@ -1,10 +1,6 @@
 
-IF OBJECT_ID('dbo.GetProducts', 'P') IS NOT NULL  
-	DROP PROCEDURE dbo.GetProducts;  
-GO  
-
 CREATE PROCEDURE dbo.GetProducts
-@TypeSubquery INT 
+@TypeSubquery int 
 AS
 	DECLARE  @SubqueryResult TABLE (productName nvarchar(max))
 
@@ -49,5 +45,18 @@ SET NOCOUNT ON;
 RETURN  
 GO  
 
-EXEC GetProducts @TypeSubquery = 1
+CREATE PROCEDURE dbo.ChangeRoleForUser
+@StatementType nvarchar(20), -- add, remove
+@UserId int,
+@RoleId int
+AS
+	BEGIN
+		IF @StatementType = 'add'
+				INSERT INTO dbo.UserRole(UserId, RoleId)  
+					VALUES (@UserId, @RoleId)
+		ELSE IF @StatementType = 'remove'
+			DELETE FROM dbo.UserRole 
+			WHERE UserId = @UserId AND RoleId = @RoleId
+	END
+RETURN 
 GO
